@@ -3,7 +3,7 @@ Tags: feedback, helpful, ux
 Requires at least: 4.0
 Tested up to: 6.0
 Stable tag: 6.0
-Contributors: WaspThemes
+Contributors: WaspThemes,pgreenland
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,10 @@ Install "Was this helpful?" just as you would any other WP Plugin:
 2. The results in WordPress dashboard > Posts.
 
 == Changelog ==
+= 1.0.3 =
+* Allow plugin to be disabled on all page types.
+* If shortcode is used prevent plugin from being displayed via filter.
+
 = 1.0.2 =
 * Added a shortcode to be able to show the widget at anywhere.
 

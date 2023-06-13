@@ -2,8 +2,8 @@
 /*
 Plugin Name: Was This Article Helpful?
 Description: Simple article feedback plugin.
-Version: 1.0.2
-Author: WaspThemes
+Version: 1.0.3
+Author: WaspThemes, pgreenland
 Author URI: https://yellowpencil.waspthemes.com
 */
 
@@ -53,8 +53,8 @@ function wthf_after_post_content($content){
 	// Read selected post types
 	$selected_post_types = json_decode(get_option("wthf_types"));
 
-	// show on only selected post types
-	if(is_singular($selected_post_types)){
+	// show on only selected post types which don't already include the shortcode (or the html created by it as this filter runs after shortcodes have been expanded)
+	if(is_singular($selected_post_types) && in_the_loop() && is_main_query() && (strpos($content, '<div id="was-this-helpful"') == false)){
 
 		// Get post id
 		$post_id = get_the_ID();
@@ -119,7 +119,7 @@ function wthf_ajax_callback() {
 		exit("No naughty business please.");
 	}
 
-	// Get 
+	// Get
 	$current_post_value = get_post_meta($post_id, $value_name, true);
 
 	// Make it zero if empty
@@ -194,7 +194,7 @@ function wthf_post_type_support(){
 	if(!empty($selected_type_array)){
 
 		foreach ($selected_type_array as $selected_type) {
-			
+
 			add_filter('manage_'.$selected_type.'_posts_columns', 'wthf_admin_columns');
 			add_action('manage_'.$selected_type.'_posts_custom_column', 'wthf_realestate_column', 10, 2);
 
@@ -215,7 +215,9 @@ function wthf_register_options_page(){
 
 add_action('admin_menu', 'wthf_register_options_page');
 
-
+function wthf_get_post_array($key) {
+	return isset($_POST[$key]) && is_array($_POST[$key]) ? $_POST[$key] : [];
+}
 
 // Option page settings
 function wthf_options_page() {
@@ -227,7 +229,7 @@ function wthf_options_page() {
 		if(wp_verify_nonce($_POST['wthf_options_nonce'], "wthf_options_nonce")) {
 
 			// Update options
-			update_option('wthf_types', json_encode(array_values($_POST['wthf_types'])));
+			update_option('wthf_types', json_encode(array_values(wthf_get_post_array('wthf_types'))));
 			update_option('wthf_question_text', sanitize_text_field($_POST["wthf_question_text"]));
 			update_option('wthf_yes_text', sanitize_text_field($_POST["wthf_yes_text"]));
 			update_option('wthf_no_text', sanitize_text_field($_POST["wthf_no_text"]));
@@ -238,7 +240,7 @@ function wthf_options_page() {
 
 		}
 	}
-	
+
 	?>
 	<div class="wrap">
 
@@ -318,7 +320,7 @@ function wthf_options_page() {
 		<?php submit_button(); ?>
 
 	</form>
-	
+
 	</div>
 <?php
 
@@ -329,7 +331,7 @@ function wthf_options_page() {
 
 
 function wthf_shortcode() {
-	
+
 	// Get post id
 	$post_id = get_the_ID();
 
